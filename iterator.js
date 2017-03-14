@@ -4,15 +4,18 @@
  * Итератор — структура данных, которая «указывает» на некоторый элемент контейнера, и (для некоторых контейнеров) умеет переходить к предыдущему/следующему элементу.
  * Итерируемые или, иными словами, «перебираемые» объекты – это те, содержимое которых можно перебрать в цикле.
  * Например, перебираемым объектом является массив. Но не только он. В браузере существует множество объектов, которые не являются массивами, но содержимое которых можно перебрать (к примеру, список DOM-узлов).
+ * Теперь все, что можно перебрать, – итерируемый объект (iterable).
+ * Все, что не перебирается само по себе, — можно заставить с помощью своего Symbol.iterator.
  * Для перебора таких объектов добавлен новый синтаксис цикла: for..of.
  */
+// Array.prototype.hello = 'Privet';
 
 // Array.hello = 'privet';
 // let list = [3, 5, 7];
 // list.foo = 'bar';
 //
 // // console.dir(list);
-// Array.prototype.hello = 'Privet';
+
 
 //
 // for (let key in list) {
@@ -30,7 +33,10 @@
 //     }
 // }
 //
-// //as iterable
+
+
+
+//as iterable
 // for (let value of list) {
 //     console.log('for..of', value);
 // }
@@ -58,7 +64,16 @@
 
 
 // let arr = [11,12,13];
+// console.log(arr);
+// //
 // let itr = arr[Symbol.iterator]();
+// console.log(itr);
+//
+// itr.next();
+//
+// for (let value of itr) {
+//     console.log(value);
+// }
 //
 // itr.next(); // { value: 11, done: false }
 // itr.next(); // { value: 12, done: false }
@@ -69,15 +84,16 @@
 
 
 
-// let myFn = (...args) => {
-//     console.log('myFn executes. args:', args);
-//     return args[Symbol.iterator]();
-// };
+let myFn = (...args) => {
+    console.log('myFn executes. args:', args);
+    return args[Symbol.iterator]();
+
+};
 //
-// for (arg of myFn(1, 'hello', a => a*5, 10, 11, 12 )) {
+// for (let arg of myFn(1, 'hello', a => a*5, 10, 11, 12 )) {
 //     console.log('arg', arg);
 // }
-//
+// //
 // let argIterator = myFn(1, 'hello', a => a*5, 10, 11, 12 );
 // while (true) {
 //     let iterator = argIterator.next();
@@ -118,7 +134,7 @@
 // let str = "Hello";
 
 // Делает то же, что и
-// for (var letter of str) alert(letter);
+// for (var letter of str) console.log(letter);
 
 
 // let iterator = str[Symbol.iterator]();
@@ -126,7 +142,7 @@
 // while(true) {
 //     let result = iterator.next();
 //     if (result.done) break;
-//     alert(result.value); // Выведет все буквы по очереди
+//     console.log(result.value); // Выведет все буквы по очереди
 // }
 
 
@@ -138,38 +154,37 @@
 //При вызове метода Symbol.iterator перебираемый объект должен возвращать другой объект («итератор»), который умеет осуществлять перебор.
 //По стандарту у такого объекта должен быть метод next(), который при каждом вызове возвращает очередное значение и окончен ли перебор
 
-// let range = {
-//     from: 1,
-//     to: 5
-// };
+let range = {
+    from: 4,
+    to: 9
+};
 
-// range[Symbol.iterator] = function() {
-//
-//     let current = this.from;
-//     let last = this.to;
-//
+range[Symbol.iterator] = function() {
+
+    let current = this.from;
+    let last = this.to;
+
 //     // must return object with method next()
-//     return {
-//         next() {
-//             if (current <= last) {
-//                 return {
-//                     done: false,
-//                     value: current++
-//                 };
-//             } else {
-//                 return {
-//                     done: true
-//                 };
-//             }
-//         }
-//
-//     }
-// };
+    return {
+        next() {
+            if (current <= last) {
+                return {
+                    done: false,
+                    value: current++
+                };
+            } else {
+                return {
+                    done: true
+                };
+            }
+        }
+    }
+};
 
 // for (let num of range) {
-//     alert(num);
+//     console.log(num);
 // }
-
+//
 // let rangeIterator = range[Symbol.iterator]();
 // while(true) {
 //     let result = rangeIterator.next();
@@ -178,7 +193,7 @@
 // }
 
 
-
+//
 // function makeIterator(array){
 //     let nextIndex = 0;
 //
@@ -191,31 +206,32 @@
 //     }
 // }
 //
-// let it = makeIterator(['yo', 'ya']);
+// let it = makeIterator(['yo', 'ya', '2222']);
 // console.log(it.next().value); // 'yo'
+// console.log(it.next().value); // 'ya'
 // console.log(it.next().value); // 'ya'
 // console.log(it.next().done);  // true
 
 
 //endless iterator
-// let randmr = {
-//     from: 1,
-//     to: 100
-// };
-//
-// randmr[Symbol.iterator] = function() {
-//     return {
-//         next: () => {
-//             return {
-//                 done: false,
-//                 value: parseInt(Math.random() * (this.to - this.from)  + this.from)
-//             };
-//         }
-//     }
-// };
-//
-// let i = 0;
-// for (let rand of randmr) {
-//     console.log('rand', rand);
-//     if (i++ > 100) break;
-// }
+let randmr = {
+    from: 50,
+    to: 60
+};
+
+randmr[Symbol.iterator] = function() {
+    return {
+        next: () => {
+            return {
+                done: false,
+                value: parseInt(Math.random() * (this.to - this.from)  + this.from)
+            };
+        }
+    }
+};
+
+let i = 0;
+for (let rand of randmr) {
+    console.log('rand', rand);
+    if (i++ > 30) break;
+}
